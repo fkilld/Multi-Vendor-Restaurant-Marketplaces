@@ -1,42 +1,38 @@
-"""foodOnline_main URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/3.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+# Import Django's admin module to access admin site functionality
 from django.contrib import admin
+# Import path for defining URL patterns and include for including other URL patterns
 from django.urls import path, include
+# Import views from the current directory (main project views)
 from . import views
+# Import settings module to access project configuration
 from django.conf import settings
+# Import static helper function to serve media files during development
 from django.conf.urls.static import static
+# Import marketplace views with an alias for direct reference
 from marketplace import views as MarketplaceViews
 
 
 urlpatterns = [
+    # URL pattern for Django admin interface
     path('admin/', admin.site.urls),
+    # Root URL pattern that maps to the home page view
     path('', views.home, name='home'),
+    # Include all URL patterns from the accounts app at the root level
     path('', include('accounts.urls')),
 
+    # Include all marketplace app URL patterns under the 'marketplace/' prefix
     path('marketplace/', include('marketplace.urls')),
 
-    # CART
+    # CART - URL pattern for the shopping cart functionality
     path('cart/', MarketplaceViews.cart, name='cart'),
-    # SEARCH
+    # SEARCH - URL pattern for the search functionality
     path('search/', MarketplaceViews.search, name='search'),
 
-    # CHECKOUT
+    # CHECKOUT - URL pattern for the checkout process
     path('checkout/', MarketplaceViews.checkout, name='checkout'),
 
-    # ORDERS
+    # ORDERS - Include all orders app URL patterns under the 'orders/' prefix
     path('orders/', include('orders.urls')),
 
+    # Add URL patterns to serve media files during development
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
