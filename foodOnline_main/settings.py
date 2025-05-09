@@ -26,9 +26,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+
+# DEBUG is set to True for development and False for production
+# We use config() to get the DEBUG value from .env file and cast=bool to convert string to boolean
 DEBUG = config('DEBUG', cast=bool)
 
-ALLOWED_HOSTS = ['194.195.118.42', '127.0.0.1', 'djangofoodonline.com', 'www.djangofoodonline.com']
+
+# ALLOWED_HOSTS defines which hosts/domains can serve this Django site
+# '127.0.0.1' and 'localhost' are for local development
+# '*' allows all hosts (not recommended for production)
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '*']
 
 
 # Application definition
@@ -40,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    # custom apps 
     'accounts',
     'vendor',
     'menu',
@@ -58,7 +65,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'orders.request_object.RequestObjectMiddleware', # custom middleware created to access the request object in models.py
+    # custom middleware created to access the request object in models.py
+    'orders.request_object.RequestObjectMiddleware',
 ]
 
 ROOT_URLCONF = 'foodOnline_main.urls'
@@ -70,15 +78,29 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+   
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+         
+                # we are using this code to add the vendor context processor to the template
+                # this way we can access the vendor data in the template
                 'accounts.context_processors.get_vendor',
+                # we are using this code to add the google api context processor to the template
+                # this way we can access the google api data in the template
                 'accounts.context_processors.get_google_api',
+                # we are using this code to add the cart counter context processor to the template
+                # this way we can access the cart counter data in the template
                 'marketplace.context_processors.get_cart_counter',
+                # we are using this code to add the cart amount context processor to the template
+                # this way we can access the cart amount data in the template
                 'marketplace.context_processors.get_cart_amounts',
+                # we are using this code to add the user profile context processor to the template
+                # this way we can access the user profile data in the template
                 'accounts.context_processors.get_user_profile',
+                # we are using this code to add the paypal client id context processor to the template
+                # this way we can access the paypal client id data in the template
                 'accounts.context_processors.get_paypal_client_id',
             ],
         },
@@ -156,30 +178,54 @@ MEDIA_ROOT = BASE_DIR /'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
+# messages framework configuration
+# This setting is used to customize the message tags for different message levels
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
+    messages.WARNING: 'warning',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
 }
 
-# Email configuration
+
+
+# Email configuration - Settings for the email service used by the application
+# The SMTP server hostname (e.g., smtp.gmail.com)
 EMAIL_HOST = config('EMAIL_HOST')
+# The port number for the SMTP server (e.g., 587 for TLS), converted to integer
 EMAIL_PORT = config('EMAIL_PORT', cast=int)
+# Username/email address for SMTP authentication
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+# Password for SMTP authentication
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = True  # Enable Transport Layer Security for secure email communication
+# Default sender name and email address for all outgoing emails
 DEFAULT_FROM_EMAIL = 'foodOnline Marketplace <django.foodonline@gmail.com>'
 
+# Google Maps API key for location-based features and geocoding
 GOOGLE_API_KEY = config('GOOGLE_API_KEY')
 
+# GDAL (Geospatial Data Abstraction Library) configuration for development environments
 if DEBUG == True:
-    os.environ['PATH'] = os.path.join(BASE_DIR, 'env\Lib\site-packages\osgeo') + ';' + os.environ['PATH']
-    os.environ['PROJ_LIB'] = os.path.join(BASE_DIR, 'env\Lib\site-packages\osgeo\data\proj') + ';' + os.environ['PATH']
-    GDAL_LIBRARY_PATH = os.path.join(BASE_DIR, 'env\Lib\site-packages\osgeo\gdal304.dll')
+    # Add GDAL library path to system PATH environment variable
+    os.environ['PATH'] = os.path.join(
+        BASE_DIR, 'env\Lib\site-packages\osgeo') + ';' + os.environ['PATH']
+    # Set PROJ_LIB environment variable for projection data used by GDAL
+    os.environ['PROJ_LIB'] = os.path.join(
+        BASE_DIR, 'env\Lib\site-packages\osgeo\data\proj') + ';' + os.environ['PATH']
+    # Path to the GDAL DLL file for Windows
+    GDAL_LIBRARY_PATH = os.path.join(
+        BASE_DIR, 'env\Lib\site-packages\osgeo\gdal304.dll')
 
+# PayPal integration for payment processing
+# Client ID from PayPal Developer Dashboard
 PAYPAL_CLIENT_ID = config('PAYPAL_CLIENT_ID')
 
+# Security policy to allow popups from the same origin (needed for payment processing windows)
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
 
-RZP_KEY_ID = config('RZP_KEY_ID')
+# Razorpay payment gateway credentials
+RZP_KEY_ID = config('RZP_KEY_ID')  # Razorpay API Key ID for authentication
+# Razorpay API Key Secret for authentication
 RZP_KEY_SECRET = config('RZP_KEY_SECRET')
